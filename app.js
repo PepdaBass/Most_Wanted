@@ -49,6 +49,7 @@ function mainMenu(person, people){
     // TODO: get person's info
     break;
     case "family":
+      displayFamily(people, person);
     // TODO: get person's family
     break;
     case "descendants":
@@ -117,9 +118,42 @@ function displayDescendants(people, parent){
   return displaySelectPerson(descendants);
 }
 
+function displayFamily(people, selectedPerson){
+  let familyMembers = people.filter(function(person){
+    if(person.currentSpouse === selectedPerson.id){
+      person.relationship = "spouse";
+      return true;
+    }
+    else if(person.parents.includes(selectedPerson.id)){
+      person.relationship = "child";
+      return true;
+    }
+    else if(isSiblings(selectedPerson, person)){
+      person.relationship = "sibling";
+      return true;
+    }
+    else if(selectedPerson.parents.includes(person.id)){
+      person.relationship = "parent";
+      return true;
+    }
+    else{
+      return false;
+    }
+  })
+  return displaySelectPerson(familyMembers);
+}
+
 //TODO: add other trait filter functions here.
 
-
+function isSiblings(selectedPerson, person){
+  let sharedParents = []
+  if(selectedPerson !== person){
+    sharedParents = person.parents.filter(function(parentID){
+      return selectedPerson.parents.includes(parentID);
+    })
+  }
+  return sharedParents.length !== 0;
+}
 
 //#endregion
 
@@ -135,7 +169,8 @@ function displaySelectPerson(people){
     return app();
   }
   let index = promptFor("Choose a person to display their info\n" + people.map(function(person, i){
-    return `${i + 1}) ${person.firstName} ${person.lastName}`;
+    const relationship = person.relationship ? ` - relationship: ${person.relationship}` : "";
+    return `${i + 1}) ${person.firstName} ${person.lastName}${relationship}`;
   }).join("\n"), autoValid);
   return people[index - 1];
 }
