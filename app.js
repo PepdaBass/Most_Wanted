@@ -42,6 +42,7 @@ function mainMenu(person, people){
 
   switch(displayOption){
     case "info":
+      displayPerson(person);
     // TODO: get person's info
     break;
     case "family":
@@ -89,41 +90,24 @@ function searchByName(people){
 }
 
 //unfinished function to search through an array of people to find matching eye colors. Use searchByName as reference.
-function searchByEyeColor(people){
-  let eyeColor = promptFor("What is the person's eye color?", autoValid);
+function searchByTrait(people){
+  let selectedTrait = promptFor("Which trait would you like to search by? \n Gender \n DOB \n Height \n Weight \n Eye Color \n Occupation", autoValid)
+  let criterion = promptFor(`What is the person's ${selectedTrait}?`, autoValid);
 
   let foundPeople = people.filter(function(person){
-    return person.eyeColor === eyeColor;
+    return person[keyConverter(selectedTrait)] === criterion;
   })
-  displayPeople(foundPeople);
+  let moreCriteria = promptFor("Would you like to choose another trait?", yesNo);
+  if(moreCriteria === "yes" || moreCriteria === "y"){
+    return searchByTrait(foundPeople);
+  }
+  else{
+    return displaySelectPerson(foundPeople);
+  }
 }
 
 //TODO: add other trait filter functions here.
-function searchByTrait(people){
-  let selectedOption = promptFor("Which trait would you like to search by? \n Gender \n DOB \n Height \n Weight \n Eye Color \n Occupation", autoValid)
 
-  switch(selectedOption){
-    case "gender":
-      //TODO: search by gender
-      break;
-    case "dob":
-      //TODO: search by dob
-      break;
-    case "height":
-      //TODO: search by height
-      break;
-    case "weight":
-      //TODO: search by weight
-      break;
-    case "eye color":
-      return searchByEyeColor(people);
-    case "occupation":
-      //TODO: search by occupation
-      break;
-    default:
-      return searchByTrait(people);
-  }
-}
 
 
 //#endregion
@@ -134,17 +118,26 @@ function searchByTrait(people){
 //#region 
 
 // alerts a list of people
-function displayPeople(people){
-  alert(people.map(function(person){
-    return person.firstName + " " + person.lastName;
-  }).join("\n"));
+function displaySelectPerson(people){
+  let index = promptFor("Choose a person to display their info\n" + people.map(function(person, i){
+    return `${i + 1}) ${person.firstName} ${person.lastName}`;
+  }).join("\n"), autoValid);
+  return people[index - 1];
 }
 
 function displayPerson(person){
   // print all of the information about a person:
   // height, weight, age, name, occupation, eye color.
-  let personInfo = "First Name: " + person.firstName + "\n";
-  personInfo += "Last Name: " + person.lastName + "\n";
+  let personInfo = 
+`First Name: ${person.firstName}\n
+Last Name: ${person.lastName}\n
+Gender: ${person.gender}\n
+DOB: ${person.dob}\n
+Height: ${person.height}\n
+Weight: ${person.weight}\n
+Eye Color: ${person.eyeColor}\n
+Occupation: ${person.occupation}`;
+
   //TODO: replace concatenation with string-literal
   // TODO: finish getting the rest of the information to display.
   alert(personInfo);
@@ -189,5 +182,20 @@ function autoValid(input){
 function customValidation(input){
   
 }
+
+function keyConverter(input){
+  input = input.split(" ")
+  .map(function(word, i){
+    if(i !== 0){
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    }
+    else{
+      return word;
+    }
+ })
+  return input.join("");
+}
+
+console.log(keyConverter("two words"));
 
 //#endregion
