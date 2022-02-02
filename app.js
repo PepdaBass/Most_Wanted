@@ -60,6 +60,10 @@ function mainMenu(person, people){
   }
 }
 
+function resultsMenu(results, people){
+
+}
+
 //#endregion
 
 //Filter functions.
@@ -86,14 +90,18 @@ function searchByName(people){
 
 //unfinished function to search through an array of people to find matching eye colors. Use searchByName as reference.
 function searchByEyeColor(people){
+  let eyeColor = promptFor("What is the person's eye color?", autoValid);
 
+  let foundPeople = people.filter(function(person){
+    return person.eyeColor === eyeColor;
+  })
+  displayPeople(foundPeople);
 }
 
 //TODO: add other trait filter functions here.
 function searchByTrait(people){
   let selectedOption = promptFor("Which trait would you like to search by? \n Gender \n DOB \n Height \n Weight \n Eye Color \n Occupation", autoValid)
-  let searchResults;
-  
+
   switch(selectedOption){
     case "gender":
       //TODO: search by gender
@@ -108,8 +116,7 @@ function searchByTrait(people){
       //TODO: search by weight
       break;
     case "eye color":
-      //TODO: search by eye color
-      break;
+      return searchByEyeColor(people);
     case "occupation":
       //TODO: search by occupation
       break;
