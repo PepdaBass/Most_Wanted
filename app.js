@@ -18,6 +18,9 @@ function app(people){
     case 'no':
     case 'n':
       searchResults = searchByTrait(people);
+      if(!person){
+        app(people);
+      }
       break;
       default:
     app(people); // restart app
@@ -119,6 +122,10 @@ function searchByTrait(people){
 
 // alerts a list of people
 function displaySelectPerson(people){
+  if(people.length === 0){
+    alert("Search results yielded no matches.")
+    return app();
+  }
   let index = promptFor("Choose a person to display their info\n" + people.map(function(person, i){
     return `${i + 1}) ${person.firstName} ${person.lastName}`;
   }).join("\n"), autoValid);
