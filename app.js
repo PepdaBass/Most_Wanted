@@ -12,10 +12,12 @@ function app(people){
   let searchResults;
   switch(searchType){
     case 'yes':
+    case 'y':
       searchResults = searchByName(people);
       break;
     case 'no':
-      // TODO: search by traits
+    case 'n':
+      searchResults = searchByTrait(people);
       break;
       default:
     app(people); // restart app
@@ -78,7 +80,7 @@ function searchByName(people){
       return false;
     }
   })
-  // TODO: find the person single person object using the name they entered.
+  // TODO: build additional functionality for duplicate names
   return foundPeople[0];
 }
 
@@ -88,7 +90,33 @@ function searchByEyeColor(people){
 }
 
 //TODO: add other trait filter functions here.
-
+function searchByTrait(people){
+  let selectedOption = promptFor("Which trait would you like to search by? \n Gender \n DOB \n Height \n Weight \n Eye Color \n Occupation", autoValid)
+  let searchResults;
+  
+  switch(selectedOption){
+    case "gender":
+      //TODO: search by gender
+      break;
+    case "dob":
+      //TODO: search by dob
+      break;
+    case "height":
+      //TODO: search by height
+      break;
+    case "weight":
+      //TODO: search by weight
+      break;
+    case "eye color":
+      //TODO: search by eye color
+      break;
+    case "occupation":
+      //TODO: search by occupation
+      break;
+    default:
+      return searchByTrait(people);
+  }
+}
 
 
 //#endregion
@@ -110,6 +138,7 @@ function displayPerson(person){
   // height, weight, age, name, occupation, eye color.
   let personInfo = "First Name: " + person.firstName + "\n";
   personInfo += "Last Name: " + person.lastName + "\n";
+  //TODO: replace concatenation with string-literal
   // TODO: finish getting the rest of the information to display.
   alert(personInfo);
 }
@@ -130,7 +159,7 @@ function displayPerson(person){
 function promptFor(question, valid){
   let isValid;
   do{
-    var response = prompt(question).trim();
+    var response = prompt(question).trim().toLowerCase();
     isValid = valid(response);
   } while(response === ""  ||  isValid === false)
   return response;
@@ -138,12 +167,8 @@ function promptFor(question, valid){
 
 // helper function/callback to pass into promptFor to validate yes/no answers.
 function yesNo(input){
-  if(input.toLowerCase() == "yes" || input.toLowerCase() == "no"){
-    return true;
-  }
-  else{
-    return false;
-  }
+  input = input.toLowerCase()
+  return (input == "yes" || input == "no" || input == "n" || input == "y")
 }
 
 // helper function to pass in as default promptFor validation.
