@@ -18,7 +18,7 @@ function app(people){
     case 'no':
     case 'n':
       searchResults = searchByTrait(people);
-      if(!person){
+      if(!searchResults){
         app(people);
       }
       break;
@@ -52,6 +52,7 @@ function mainMenu(person, people){
     // TODO: get person's family
     break;
     case "descendants":
+      displayDescendants(people, person);
     // TODO: get person's descendants
     break;
     case "restart":
@@ -107,6 +108,13 @@ function searchByTrait(people){
   else{
     return displaySelectPerson(foundPeople);
   }
+}
+
+function displayDescendants(people, parent){
+  let descendants = people.filter(function(person){
+    return person.parents.includes(parent.id);
+  })
+  return displaySelectPerson(descendants);
 }
 
 //TODO: add other trait filter functions here.
