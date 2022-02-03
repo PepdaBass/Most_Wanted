@@ -108,9 +108,9 @@ function searchByName(people) {
 }
 
 //unfinished function to search through an array of people to find matching eye colors. Use searchByName as reference.
-function searchByTrait(people, cnt = 1) {
+function searchByTrait(people, cnt = 0) {
 	const traits = [
-		'First Name',
+		'First Name', // FIXME: names not returning results ???
 		'Last Name',
 		'Gender',
 		'DOB',
@@ -120,39 +120,44 @@ function searchByTrait(people, cnt = 1) {
 		'Occupation',
 	];
 
-	// 4 create validator(list, args*) for traits list and allow for custom validation options, add to promptFor
-	// 5 implement flow to redirect based on count of 5 traits
 	// BONUS: display input criteria alongside trait options
 	//   a. allow user to change their search criteria for each trait
-	//   b. store criteria in a variable and only search when prompted or cnt == 5
+	//   b. store criteria in an array and only search when prompted or cnt == 5
 
-	let selectedTrait = promptFor(
-		`Select an option, 'v' to view results, 'q' to quit.\n${optionsStrBuilder(
-			traits,
-		)}`,
-		autoValid,
-	);
+	if (cnt < 5) {
+		let selectedOption = promptFor(
+			`Select an option, 'v' to view results, 'q' to quit.\n${optionsStrBuilder(
+				traits,
+			)}`,
+			function (response) {
+				return optionsValidator(response, traits, ['q', 'v']);
+			},
+		);
 
-	// if selectedOption == view results -> braek recursion, else if 'quit' -> return q??
+		if (!isNaN(selectedOption)) {
+			const index = parseInt(selectedOption) - 1;
+			selectedOption = traits[index].toLowerCase();
+		}
 
-	let criterion = promptFor(
-		`What is the person's ${selectedTrait}?`,
-		autoValid,
-	);
+		switch (selectedOption) {
+			case 'v':
+				return displaySelectPerson(people);
+			case 'q':
+				return;
+			default:
+				let criterion = promptFor(
+					`What is the person's ${selectedOption}?`,
+					autoValid,
+				);
 
-	let foundPeople = people.filter(function (person) {
-		return person[keyConverter(selectedTrait)] === criterion;
-	});
+				let foundPeople = people.filter(function (person) {
+					return person[convertToKey(selectedOption)] == criterion;
+				});
 
-	let moreCriteria = promptFor(
-		'Would you like to choose another trait?',
-		yesNo,
-	);
-
-	if ((cnt < 6 && moreCriteria === 'yes') || moreCriteria === 'y') {
-		return searchByTrait(foundPeople, cnt + 1);
+				return searchByTrait(foundPeople, cnt + 1);
+		}
 	} else {
-		return displaySelectPerson(foundPeople);
+		return displaySelectPerson(people);
 	}
 }
 
@@ -211,6 +216,9 @@ function displaySelectPerson(people) {
 		alert('Search results yielded no matches.');
 		return app();
 	}
+	if (people.length === 1) {
+		return people[0];
+	}
 	let index = promptFor(
 		'Choose a person to display their info\n' +
 			people
@@ -256,6 +264,7 @@ Occupation: ${person.occupation}`;
 //response: Will capture the user input.
 //isValid: Will capture the return of the validation function callback. true(the user input is valid)/false(the user input was not valid).
 //this function will continue to loop until the user enters something that is not an empty string("") or is considered valid based off the callback function(valid).
+
 function promptFor(question, valid) {
 	let isValid;
 	do {
@@ -290,25 +299,19 @@ function customValidation(input) {}
 
 /** validates an input against a list of options, returns appropriate bool */
 function optionsValidator(input, options = [], customOptions = []) {
-	// compare input to both the options list & the customOptions (combine two arrays into one, before validating)
 	input = input.toLowerCase();
 	let combinedOptions = options.concat(customOptions).map(function (word) {
 		return word.toLowerCase();
 	});
-	// must validate literal option (string)
-	combinedOptions.includes(input);
 
-	// combinedptions ['firstname', 'lastname', 'age', 'v', 'q' ]
-	//                      1           2          3
-
-	// combinedOptions.length is 5
-
-	// must validate numeric option
-	selectedNum = parseInt(input); // 6
-
-	// must return a bool
+	const selectedNum = parseInt(input);
+	if (combinedOptions.includes(input)) {
+		return true;
+	} else if (selectedNum <= options.length) {
+		return true;
+	} else return false;
 }
-//#endregion
+//#endregion;
 
 //Helper functions.
 //Functions to validate user input.
@@ -322,12 +325,12 @@ function optionsStrBuilder(list) {
 	return numberedList.join('\n');
 }
 
-function keyConverter(input) {
+function convertToKey(input) {
 	input = input.split(' ').map(function (word, i) {
-		if (i !== 0) {
-			return word.charAt(0).toUpperCase() + word.slice(1);
+		if (i === 0) {
+			return word.toLowerCase();
 		} else {
-			return word;
+			return word.charAt(0).toUpperCase() + word.slice(1);
 		}
 	});
 	return input.join('');
