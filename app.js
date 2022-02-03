@@ -1,9 +1,6 @@
 'use strict';
 
-//Menu functions.
-//Used for the overall flow of the application.
-/////////////////////////////////////////////////////////////////
-//#region
+//#region Menu functions
 
 // app is the function called to start the entire application
 function app(people) {
@@ -24,7 +21,6 @@ function app(people) {
 				app(people);
 			}
 			break;
-
 		case 'quit':
 		case 'q':
 			return;
@@ -82,10 +78,7 @@ function mainMenu(person, people) {
 
 //#endregion
 
-//Filter functions.
-//Ideally you will have a function for each trait.
-/////////////////////////////////////////////////////////////////
-//#region
+//#region Filter functions.
 
 function searchByName(people) {
 	let firstName = promptFor("What is the person's first name?", autoValid);
@@ -159,8 +152,6 @@ function searchByTrait(people, cnt = 0) {
 	}
 }
 
-//#endregion
-
 function displayDescendants(people, parent) {
 	let descendants = people.filter(function (person) {
 		return person.parents.includes(parent.id);
@@ -168,6 +159,7 @@ function displayDescendants(people, parent) {
 	return selectPersonFromList(descendants);
 }
 
+//TODO: big ole refactor
 function displayFamily(people, selectedPerson) {
 	let familyMembers = people.filter(function (person) {
 		if (person.currentSpouse === selectedPerson.id) {
@@ -189,8 +181,6 @@ function displayFamily(people, selectedPerson) {
 	return selectPersonFromList(familyMembers);
 }
 
-//TODO: add other trait filter functions here.
-
 function isSiblings(selectedPerson, person) {
 	let sharedParents = [];
 	if (selectedPerson !== person) {
@@ -203,10 +193,7 @@ function isSiblings(selectedPerson, person) {
 
 //#endregion
 
-//Display functions.
-//Functions for user interface.
-/////////////////////////////////////////////////////////////////
-//#region
+//#region UI functions.
 
 //** prompts user to select from a list of people by name */
 function selectPersonFromList(people) {
@@ -237,16 +224,7 @@ function namesList(people) {
 	return people.map(person => `${person.firstName} ${person.lastName}`); // TODO: add custom list vars into line
 }
 
-function capitalize(string) {
-	const words = string.split(' ');
-	return words
-		.map(word => word.charAt(0).toUpperCase() + word.slice(1))
-		.join(' ');
-}
-
 function displayPerson(person) {
-	// print all of the information about a person:
-	// height, weight, age, name, occupation, eye color.
 	let personInfo = `First Name: ${person.firstName}\n
 Last Name: ${person.lastName}\n
 Gender: ${person.gender}\n
@@ -256,30 +234,23 @@ Weight: ${person.weight}\n
 Eye Color: ${person.eyeColor}\n
 Occupation: ${person.occupation}`;
 
-	//TODO: replace concatenation with string-literal
-	// TODO: finish getting the rest of the information to display.
 	alert(personInfo);
 	return person;
 }
 
 //#endregion
 
-//Validation functions.
-//Functions to validate user input.
-/////////////////////////////////////////////////////////////////
-//#region
+//#region Validation functions
 
-//a function that takes in a question to prompt, and a callback function to validate the user input.
-//response: Will capture the user input.
-//isValid: Will capture the return of the validation function callback. true(the user input is valid)/false(the user input was not valid).
-//this function will continue to loop until the user enters something that is not an empty string("") or is considered valid based off the callback function(valid).
-
+/**a function that takes in a question to prompt user, and a callback function to validate the user's input. */
 function promptFor(question, valid) {
 	let isValid;
+
 	do {
 		var response = prompt(question).trim().toLowerCase();
 		isValid = valid(response);
 	} while (response === '' || isValid === false);
+
 	return response;
 }
 
@@ -289,43 +260,25 @@ function yesNo(input) {
 	return input == 'yes' || input == 'no' || input == 'n' || input == 'y';
 }
 
-// helper function to pass in as default promptFor validation.
-//this will always return true for all inputs.
+// helper function to pass in as default promptFor validation. always true
 function autoValid(input) {
 	return true; // default validation only
 }
 
-//Unfinished validation function you can use for any of your custom validation callbacks.
-//can be used for things like eye color validation for example.
-function customValidation(input) {}
-
-// 4 create validator(list, args*) for traits list and allow for custom options, add to promptFor
-// 5 implement flow to redirect based on count of 5 traits
-// BONUS: display input criteria alongside trait options
-//   a. allow user to change their search criteria for each trait
-//   b. store criteria in a variable and only search when prompted or cnt == 5
-// optionsValidator(userInput, traits, ['v', 'q'])
-
 /** validates an input against a list of options, returns appropriate bool */
 function optionsValidator(userInput, options = [], customOptions = []) {
 	userInput = userInput.toLowerCase();
+
 	let combinedOptions = options.concat(customOptions).map(function (word) {
 		return word.toLowerCase();
 	});
 
-	const selectedNum = parseInt(userInput);
-	if (combinedOptions.includes(userInput)) {
-		return true;
-	} else if (selectedNum <= options.length) {
-		return true;
-	} else return false;
+	return combinedOptions.includes(userInput) || userInput <= options.length;
 }
+
 //#endregion;
 
-//Helper functions.
-//Functions to validate user input.
-/////////////////////////////////////////////////////////////////
-//#region
+//#region Helper functions.
 
 function optionsStrBuilder(list) {
 	const numberedList = list.map(function (option, i) {
@@ -339,10 +292,17 @@ function convertToKey(input) {
 		if (i === 0) {
 			return word.toLowerCase();
 		} else {
-			return word.charAt(0).toUpperCase() + word.slice(1);
+			return capitalize(word);
 		}
 	});
 	return input.join('');
+}
+
+function capitalize(string) {
+	const words = string.split(' ');
+	return words
+		.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ');
 }
 
 //#endregion
