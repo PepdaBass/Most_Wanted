@@ -11,16 +11,16 @@ function app(people) {
 		"Do you know the name of the person you are looking for? Enter 'yes' or 'no'",
 		autoValid,
 	).toLowerCase();
-	let searchResults;
+	let searchResult;
 	switch (searchType) {
 		case 'yes':
 		case 'y':
-			searchResults = searchByName(people);
+			searchResult = searchByName(people);
 			break;
 		case 'no':
 		case 'n':
-			searchResults = searchByTrait(people);
-			if (!searchResults) {
+			searchResult = searchByTrait(people);
+			if (!searchResult) {
 				app(people);
 			}
 			break;
@@ -34,13 +34,14 @@ function app(people) {
 	}
 
 	// Call the mainMenu function ONLY after you find the SINGLE person you are looking for
-	mainMenu(searchResults, people);
+	mainMenu(searchResult, people);
 	app(people); // restart app
 }
 
 // Menu function to call once you find who you are looking for
 function mainMenu(person, people) {
-	/* Here we pass in the entire person object that we found in our search, as well as the entire original dataset of people. We need people in order to find descendants and other information that the user may want. */
+	/* Here we pass in the entire person object that we found in our search, as well as the entire original dataset of people. 
+	We need people in order to find descendants and other information that the user may want. */
 
 	if (!person) {
 		alert('Could not find that individual.');
@@ -58,16 +59,14 @@ function mainMenu(person, people) {
 
 	switch (displayOption) {
 		case 'info':
-			displayPerson(person);
-			// TODO: get person's info
+			person = displayPerson(person);
+			// mainMenu(person);
 			break;
 		case 'family':
 			displayFamily(people, person);
-			// TODO: get person's family
 			break;
 		case 'descendants':
 			displayDescendants(people, person);
-			// TODO: get person's descendants
 			break;
 		case 'restart':
 			app(people); // restart
@@ -76,10 +75,10 @@ function mainMenu(person, people) {
 			return; // stop execution
 		default:
 			return mainMenu(person, people); // ask again
+
+		// TODO: make me recursive when completing a case
 	}
 }
-
-function resultsMenu(results, people) {}
 
 //#endregion
 
@@ -88,7 +87,6 @@ function resultsMenu(results, people) {}
 /////////////////////////////////////////////////////////////////
 //#region
 
-//nearly finished function used to search through an array of people to find matching first and last name and return a SINGLE person object.
 function searchByName(people) {
 	let firstName = promptFor("What is the person's first name?", autoValid);
 	let lastName = promptFor("What is the person's last name?", autoValid);
@@ -103,14 +101,12 @@ function searchByName(people) {
 			return false;
 		}
 	});
-	// TODO: build additional functionality for duplicate names
-	return foundPeople[0];
+	return selectPersonFromList(foundPeople);
 }
 
-//unfinished function to search through an array of people to find matching eye colors. Use searchByName as reference.
 function searchByTrait(people, cnt = 0) {
 	const traits = [
-		'First Name', // FIXME: names not returning results ???
+		'First Name',
 		'Last Name',
 		'Gender',
 		'DOB',
@@ -141,7 +137,7 @@ function searchByTrait(people, cnt = 0) {
 
 		switch (selectedOption) {
 			case 'v':
-				return displaySelectPerson(people);
+				return selectPersonFromList(people);
 			case 'q':
 				return;
 			default:
@@ -151,13 +147,15 @@ function searchByTrait(people, cnt = 0) {
 				);
 
 				let foundPeople = people.filter(function (person) {
-					return person[convertToKey(selectedOption)] == criterion;
+					return (
+						person[convertToKey(selectedOption)].toLowerCase() == criterion
+					);
 				});
 
 				return searchByTrait(foundPeople, cnt + 1);
 		}
 	} else {
-		return displaySelectPerson(people);
+		return selectPersonFromList(people);
 	}
 }
 
@@ -167,13 +165,13 @@ function displayDescendants(people, parent) {
 	let descendants = people.filter(function (person) {
 		return person.parents.includes(parent.id);
 	});
-	return displaySelectPerson(descendants);
+	return selectPersonFromList(descendants);
 }
 
 function displayFamily(people, selectedPerson) {
 	let familyMembers = people.filter(function (person) {
 		if (person.currentSpouse === selectedPerson.id) {
-			person.relationship = 'spouse';
+			person.relationship = 'spouse'; // FIXME: mutating the entries in the database instead of just displaying relevant info
 			return true;
 		} else if (person.parents.includes(selectedPerson.id)) {
 			person.relationship = 'child';
@@ -188,7 +186,7 @@ function displayFamily(people, selectedPerson) {
 			return false;
 		}
 	});
-	return displaySelectPerson(familyMembers);
+	return selectPersonFromList(familyMembers);
 }
 
 //TODO: add other trait filter functions here.
@@ -211,29 +209,33 @@ function isSiblings(selectedPerson, person) {
 //#region
 
 // alerts a list of people
-function displaySelectPerson(people) {
+function selectPersonFromList(people) {
 	if (people.length === 0) {
 		alert('Search results yielded no matches.');
 		return app();
 	}
+
 	if (people.length === 1) {
 		return people[0];
 	}
-	let index = promptFor(
-		'Choose a person to display their info\n' +
-			people
-				.map(function (person, i) {
-					const relationship = person.relationship
-						? ` - relationship: ${person.relationship}`
-						: '';
-					return `${
-						i + 1
-					}) ${person.firstName} ${person.lastName}${relationship}`;
-				})
-				.join('\n'),
-		autoValid,
-	);
-	return people[index - 1];
+
+	let index =
+		promptFor(
+			`Choose a person to display their info\n${peopleListStrBldr(people)}`,
+			autoValid,
+		) - 1; // TODO: validate user options (optionsValidator)
+
+	// TODO: convert index into person's name if string
+	return people[index];
+}
+
+function peopleListStrBldr(people, customList = []) {
+	const str = people
+		.map(function (person, i) {
+			return `${i + 1}) ${person.firstName} ${person.lastName}`; // TODO: add custom list vars into line
+		})
+		.join('\n');
+	return str;
 }
 
 function displayPerson(person) {
@@ -251,6 +253,7 @@ Occupation: ${person.occupation}`;
 	//TODO: replace concatenation with string-literal
 	// TODO: finish getting the rest of the information to display.
 	alert(personInfo);
+	return person;
 }
 
 //#endregion
