@@ -208,7 +208,7 @@ function isSiblings(selectedPerson, person) {
 /////////////////////////////////////////////////////////////////
 //#region
 
-// alerts a list of people
+//** prompts user to select from a list of people by name */
 function selectPersonFromList(people) {
 	if (people.length === 0) {
 		alert('Search results yielded no matches.');
@@ -219,23 +219,29 @@ function selectPersonFromList(people) {
 		return people[0];
 	}
 
-	let index =
-		promptFor(
-			`Choose a person to display their info\n${peopleListStrBldr(people)}`,
-			autoValid,
-		) - 1; // TODO: validate user options (optionsValidator)
+	const names = namesList(people);
 
-	// TODO: convert index into person's name if string
+	let response = promptFor(
+		`Choose a person to display their info\n${optionsStrBuilder(names)}`,
+		response => optionsValidator(response, names),
+	);
+
+	const index = isNaN(response)
+		? names.indexOf(capitalize(response))
+		: response - 1;
+
 	return people[index];
 }
 
-function peopleListStrBldr(people, customList = []) {
-	const str = people
-		.map(function (person, i) {
-			return `${i + 1}) ${person.firstName} ${person.lastName}`; // TODO: add custom list vars into line
-		})
-		.join('\n');
-	return str;
+function namesList(people) {
+	return people.map(person => `${person.firstName} ${person.lastName}`); // TODO: add custom list vars into line
+}
+
+function capitalize(string) {
+	const words = string.split(' ');
+	return words
+		.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ');
 }
 
 function displayPerson(person) {
@@ -301,14 +307,14 @@ function customValidation(input) {}
 // optionsValidator(userInput, traits, ['v', 'q'])
 
 /** validates an input against a list of options, returns appropriate bool */
-function optionsValidator(input, options = [], customOptions = []) {
-	input = input.toLowerCase();
+function optionsValidator(userInput, options = [], customOptions = []) {
+	userInput = userInput.toLowerCase();
 	let combinedOptions = options.concat(customOptions).map(function (word) {
 		return word.toLowerCase();
 	});
 
-	const selectedNum = parseInt(input);
-	if (combinedOptions.includes(input)) {
+	const selectedNum = parseInt(userInput);
+	if (combinedOptions.includes(userInput)) {
 		return true;
 	} else if (selectedNum <= options.length) {
 		return true;
