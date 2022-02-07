@@ -51,10 +51,7 @@ ${optionsStrBuilder(options)}`, function(response){
   return optionsValidator(response, options, ["i", "f", "d", "r", "q"]);
 })
 
-if (!isNaN(displayOption)) {
-  const index = parseInt(displayOption) - 1;
-  displayOption = options[index].toLowerCase(); // TODO: cleanup, make into function?
-}
+displayOption = convertNumericSelection(displayOption, options);
 
 	switch (displayOption) {
 		case 'info':
@@ -125,11 +122,8 @@ function searchByTrait(people, cnt = 0) {
 				return optionsValidator(response, traits, ['q', 'v']);
 			},
 		);
-
-		if (!isNaN(selectedOption)) {
-			const index = parseInt(selectedOption) - 1;
-			selectedOption = traits[index].toLowerCase();
-		}
+    
+    selectedOption = convertNumericSelection(selectedOption, traits);
 
 		switch (selectedOption) {
 			case 'v':
@@ -297,6 +291,14 @@ function convertToKey(input) {
 function capitalize(string) {
 	const words = string.split(' ');
 	return words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}
+
+function convertNumericSelection(input, choices){
+  if (!isNaN(input)) {
+    let index = parseInt(input) - 1;
+    input = choices[index].toLowerCase();
+  }
+  return input;
 }
 
 //#endregion
