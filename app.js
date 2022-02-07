@@ -115,7 +115,7 @@ function filterByName(name, people) {
 	);
 }
 
-function searchByTrait(people, cnt = 0) {
+function searchByTrait(people, cnt = 0, criteriaList = []) {
 	const traits = [
 		'First Name',
 		'Last Name',
@@ -127,13 +127,14 @@ function searchByTrait(people, cnt = 0) {
 		'Occupation',
 	];
 
-	// BONUS: display input criteria alongside trait options
-	//   a. allow user to change their search criteria for each trait
-	//   b. store criteria in an array and only search when prompted or cnt == 5
+	criteriaList = criteriaList.length === 0 ? traits.map(() => '') : criteriaList;
 
 	if (cnt < 5) {
 		let selectedOption = promptFor(
-			`Select an option, 'v' to view results, 'q' to quit.\n${optionsStrBuilder(traits)}`,
+			`Select an option, 'v' to view results, 'q' to quit.\n${optionsStrBuilder(
+				traits,
+				criteriaList,
+			)}`,
 			function (response) {
 				return optionsValidator(response, traits, ['q', 'v']);
 			},
@@ -143,17 +144,27 @@ function searchByTrait(people, cnt = 0) {
 
 		switch (selectedOption) {
 			case 'v':
-				return selectPersonFromList(people);
+				let foundPeople = people;
+				criteriaList.forEach((criterion, i) => {
+					if (criterion) {
+						foundPeople = foundPeople.filter(
+							person => person[convertToKey(traits[i])].toLowerCase() == criterion,
+						);
+					}
+				});
+
+				return selectPersonFromList(foundPeople);
 			case 'q':
 				return;
 			default:
 				let criterion = promptFor(`What is the person's ${selectedOption}?`, autoValid);
+				criteriaList[traits.indexOf(capitalize(selectedOption))] = criterion;
 
-				let foundPeople = people.filter(function (person) {
-					return person[convertToKey(selectedOption)].toLowerCase() == criterion;
-				});
+				// let foundPeople = people.filter(function (person) {
+				// 	return person[convertToKey(selectedOption)].toLowerCase() == criterion;
+				// });
 
-				return searchByTrait(foundPeople, cnt + 1);
+				return searchByTrait(people, cnt + 1, criteriaList);
 		}
 	} else {
 		return selectPersonFromList(people);
@@ -211,7 +222,7 @@ function isSiblings(selectedPerson, person) {
 function selectPersonFromList(people, appendixList, prevPerson) {
 	if (people.length === 0) {
 		alert('Search results yielded no matches.');
-		return app();
+		return;
 	}
 
 	if (people.length === 1 && !appendixList) {
