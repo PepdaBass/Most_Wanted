@@ -56,14 +56,13 @@ function mainMenu(person, people) {
 	switch (displayOption) {
 		case 'info':
 			person = displayPerson(person);
-			// mainMenu(person);
-			break;
+			return mainMenu(person, people);
 		case 'family':
-			displayFamily(people, person);
-			break;
+			person = displayFamily(people, person);
+      return mainMenu(person, people);
 		case 'descendants':
-			displayDescendants(people, person);
-			break;
+			person = displayDescendants(people, person);
+      return mainMenu(person, people);
 		case 'restart':
 			app(people); // restart
 			break;
@@ -71,7 +70,6 @@ function mainMenu(person, people) {
 			return; // stop execution
 		default:
 			return mainMenu(person, people); // ask again
-
 		// TODO: make me recursive when completing a case
 		// TODO: display person's info in PromptFor
 	}
@@ -155,24 +153,25 @@ function displayDescendants(people, parent) {
 
 //TODO: big ole refactor
 function displayFamily(people, selectedPerson) {
+  let relationships = []
 	let familyMembers = people.filter(function (person) {
-		if (person.currentSpouse === selectedPerson.id) {
-			person.relationship = 'spouse'; // FIXME: mutating the entries in the database instead of just displaying relevant info
-			return true;
+		if (person.id === selectedPerson.currentSpouse) {
+			relationships.push("spouse");
+      return true;
 		} else if (person.parents.includes(selectedPerson.id)) {
-			person.relationship = 'child';
+      relationships.push("child");
 			return true;
 		} else if (isSiblings(selectedPerson, person)) {
-			person.relationship = 'sibling';
+      relationships.push("sibling");
 			return true;
 		} else if (selectedPerson.parents.includes(person.id)) {
-			person.relationship = 'parent';
+      relationships.push("parent");
 			return true;
 		} else {
 			return false;
 		}
 	});
-	return selectPersonFromList(familyMembers);
+	return selectPersonFromList(familyMembers, relationships);
 }
 
 function isSiblings(selectedPerson, person) {
@@ -190,20 +189,20 @@ function isSiblings(selectedPerson, person) {
 //#region UI functions.
 
 //** prompts user to select from a list of people by name */
-function selectPersonFromList(people) {
+function selectPersonFromList(people, relationships) {
 	if (people.length === 0) {
 		alert('Search results yielded no matches.');
 		return app();
 	}
 
-	if (people.length === 1) {
+	if (people.length === 1 && !relationships) {
 		return people[0];
 	}
 
 	const names = namesList(people);
 
 	let response = promptFor(
-		`Choose a person to display their info\n${optionsStrBuilder(names)}`,
+		`Choose a person to display their info\n${optionsStrBuilder(names, relationships)}`,
 		response => optionsValidator(response, names),
 	);
 
@@ -272,9 +271,9 @@ function optionsValidator(userInput, options = [], customOptions = []) {
 
 //#region Helper functions.
 
-function optionsStrBuilder(list) {
+function optionsStrBuilder(list, appendixList) {
 	const numberedList = list.map(function (option, i) {
-		return `${i + 1}) ${option}`;
+		return `${i + 1}) ${option}${appendixList ? ` (${appendixList[i]})` : ""}`;
 	});
 	return numberedList.join('\n');
 }
