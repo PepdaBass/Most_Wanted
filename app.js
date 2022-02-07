@@ -19,7 +19,7 @@ function app(people) {
 		case 'n':
 			searchResult = searchByTrait(people);
 			if (!searchResult) {
-				app(people);
+				app(people); // restart
 			}
 			break;
 		case 'quit':
@@ -144,31 +144,29 @@ function searchByTrait(people, cnt = 0, criteriaList = []) {
 
 		switch (selectedOption) {
 			case 'v':
-				let foundPeople = people;
-				criteriaList.forEach((criterion, i) => {
-					if (criterion) {
-						foundPeople = foundPeople.filter(
-							person => person[convertToKey(traits[i])].toLowerCase() == criterion,
-						);
-					}
-				});
-
-				return selectPersonFromList(foundPeople);
+				const filteredPeople = multCriteriaFilter(people, criteriaList, traits);
+				return selectPersonFromList(filteredPeople);
 			case 'q':
 				return;
 			default:
 				let criterion = promptFor(`What is the person's ${selectedOption}?`, autoValid);
 				criteriaList[traits.indexOf(capitalize(selectedOption))] = criterion;
 
-				// let foundPeople = people.filter(function (person) {
-				// 	return person[convertToKey(selectedOption)].toLowerCase() == criterion;
-				// });
-
 				return searchByTrait(people, cnt + 1, criteriaList);
 		}
 	} else {
-		return selectPersonFromList(people);
+		const filteredPeople = multCriteriaFilter(people, criteriaList, traits);
+		return selectPersonFromList(filteredPeople);
 	}
+}
+
+function multCriteriaFilter(people, criteriaList, traits) {
+	criteriaList.forEach((criterion, i) => {
+		if (criterion) {
+			people = people.filter(person => person[convertToKey(traits[i])].toLowerCase() == criterion);
+		}
+	});
+	return people;
 }
 
 function displayDescendants(people, parent) {
