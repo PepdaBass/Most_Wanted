@@ -7,7 +7,7 @@ function app(people) {
 	//TODO: change from y/n to search by name / search by trait options, with q to quit
 	let searchType = promptFor(
 		"Do you know the name of the person you are looking for? Enter 'yes' or 'no'",
-		autoValid,
+		yesNo
 	).toLowerCase();
 	let searchResult;
 	switch (searchType) {
@@ -87,20 +87,23 @@ ${optionsStrBuilder(options)}`,
 
 function searchByName(people) {
 	//TODO: build logic to separate first/last names from a single prompt
-	let firstName = promptFor("What is the person's first name?", autoValid);
-	let lastName = promptFor("What is the person's last name?", autoValid);
-
-	let foundPeople = people.filter(function (potentialMatch) {
-		if (
-			potentialMatch.firstName.toLowerCase() === firstName &&
-			potentialMatch.lastName.toLowerCase() === lastName
-		) {
-			return true;
-		} else {
-			return false;
-		}
-	});
+  //TODO: Add validation.
+	let name = promptFor("Please enter the first and last name of the person you are searching for:", function());
+  const foundPeople = filterByName(name, people);
 	return selectPersonFromList(foundPeople);
+}
+
+function validateName(name, people){
+  if(name.split(" ").length !== 2){
+    alert("Please enter only the FIRST and LAST name.");
+    return false;
+  }
+  return filterByName(name, people).length === 1;
+}
+
+function filterByName(name, people){
+  const [firstName, lastName] = name.split(" ");
+  return people.filter(person => (person.firstName.toLowerCase() === firstName && person.lastName.toLowerCase() === lastName));
 }
 
 function searchByTrait(people, cnt = 0) {
