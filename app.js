@@ -4,6 +4,7 @@
 
 // app is the function called to start the entire application
 function app(people) {
+	//TODO: change from y/n to search by name / search by trait options, with q to quit
 	let searchType = promptFor(
 		"Do you know the name of the person you are looking for? Enter 'yes' or 'no'",
 		autoValid,
@@ -85,6 +86,7 @@ ${optionsStrBuilder(options)}`,
 //#region Filter functions.
 
 function searchByName(people) {
+	//TODO: build logic to separate first/last names from a single prompt
 	let firstName = promptFor("What is the person's first name?", autoValid);
 	let lastName = promptFor("What is the person's last name?", autoValid);
 
