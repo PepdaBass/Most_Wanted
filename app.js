@@ -42,36 +42,38 @@ function mainMenu(person, people) {
 		alert('Could not find that individual.');
 		return app(people); // restart
 	}
-  const options = ["Info", "Family", "Descendants", "Restart", "Quit"]
+	const options = ['Info', 'Family', 'Descendants', 'Restart', 'Quit'];
 
-  let displayOption = promptFor(
-    `Found ${person.firstName} ${person.lastName}.
+	let displayOption = promptFor(
+		`Found ${person.firstName} ${person.lastName}.\n
 Select an option:
-${optionsStrBuilder(options)}`, function(response){
-  return optionsValidator(response, options, ["i", "f", "d", "r", "q"]);
-})
+${optionsStrBuilder(options)}`,
+		function (response) {
+			return optionsValidator(response, options, ['i', 'f', 'd', 'r', 'q']);
+		},
+	);
 
-displayOption = convertNumericSelection(displayOption, options);
+	displayOption = convertNumericSelection(displayOption, options);
 
 	switch (displayOption) {
 		case 'info':
-      case 'i':
+		case 'i':
 			person = displayPerson(person);
 			return mainMenu(person, people);
 		case 'family':
-      case 'f':
+		case 'f':
 			person = displayFamily(people, person);
-      return mainMenu(person, people);
+			return mainMenu(person, people);
 		case 'descendants':
-      case 'd':
+		case 'd':
 			person = displayDescendants(people, person);
-      return mainMenu(person, people);
+			return mainMenu(person, people);
 		case 'restart':
-      case 'r':
+		case 'r':
 			app(people); // restart
 			break;
 		case 'quit':
-      case 'q':
+		case 'q':
 			return; // stop execution
 		default:
 			return mainMenu(person, people); // ask again
@@ -122,8 +124,8 @@ function searchByTrait(people, cnt = 0) {
 				return optionsValidator(response, traits, ['q', 'v']);
 			},
 		);
-    
-    selectedOption = convertNumericSelection(selectedOption, traits);
+
+		selectedOption = convertNumericSelection(selectedOption, traits);
 
 		switch (selectedOption) {
 			case 'v':
@@ -148,29 +150,33 @@ function displayDescendants(people, parent) {
 	let descendants = people.filter(function (person) {
 		return person.parents.includes(parent.id);
 	});
-	return selectPersonFromList(descendants);
+	if (!descendants.length) {
+		alert('No descendants found.');
+		return parent;
+	}
+	return selectPersonFromList(descendants, undefined, parent);
 }
 
 function displayFamily(people, selectedPerson) {
-  let relationships = []
+	let relationships = [];
 	let familyMembers = people.filter(function (person) {
 		if (person.id === selectedPerson.currentSpouse) {
-			relationships.push("spouse");
-      return true;
+			relationships.push('spouse');
+			return true;
 		} else if (person.parents.includes(selectedPerson.id)) {
-      relationships.push("child");
+			relationships.push('child');
 			return true;
 		} else if (isSiblings(selectedPerson, person)) {
-      relationships.push("sibling");
+			relationships.push('sibling');
 			return true;
 		} else if (selectedPerson.parents.includes(person.id)) {
-      relationships.push("parent");
+			relationships.push('parent');
 			return true;
 		} else {
 			return false;
 		}
 	});
-	return selectPersonFromList(familyMembers, relationships);
+	return selectPersonFromList(familyMembers, relationships, selectedPerson);
 }
 
 function isSiblings(selectedPerson, person) {
@@ -188,7 +194,7 @@ function isSiblings(selectedPerson, person) {
 //#region UI functions.
 
 //** prompts user to select from a list of people by name */
-function selectPersonFromList(people, appendixList) {
+function selectPersonFromList(people, appendixList, prevPerson) {
 	if (people.length === 0) {
 		alert('Search results yielded no matches.');
 		return app();
@@ -201,13 +207,19 @@ function selectPersonFromList(people, appendixList) {
 	const names = namesList(people);
 
 	let response = promptFor(
-		`Choose a person to display their info\n${optionsStrBuilder(names, appendixList)}`,
-		response => optionsValidator(response, names),
+		`Choose a person to display their info${
+			prevPerson ? ` or 'b' to go back to ${prevPerson.firstName} ${prevPerson.lastName},` : ''
+		}.\n${optionsStrBuilder(names, appendixList)}`,
+		response => optionsValidator(response, names, ['b']),
 	);
 
-	const index = isNaN(response) ? names.indexOf(capitalize(response)) : response - 1;
-
-	return people[index];
+	switch (response) {
+		case 'b':
+			return prevPerson;
+		default:
+			const index = isNaN(response) ? names.indexOf(capitalize(response)) : response - 1;
+			return people[index];
+	}
 }
 
 function namesList(people) {
@@ -272,7 +284,7 @@ function optionsValidator(userInput, options = [], customOptions = []) {
 
 function optionsStrBuilder(list, appendixList) {
 	const numberedList = list.map(function (option, i) {
-		return `${i + 1}) ${option}${appendixList ? ` (${appendixList[i]})` : ""}`;
+		return `${i + 1}) ${option}${appendixList ? ` (${appendixList[i]})` : ''}`;
 	});
 	return numberedList.join('\n');
 }
@@ -293,12 +305,12 @@ function capitalize(string) {
 	return words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 }
 
-function convertNumericSelection(input, choices){
-  if (!isNaN(input)) {
-    let index = parseInt(input) - 1;
-    input = choices[index].toLowerCase();
-  }
-  return input;
+function convertNumericSelection(input, choices) {
+	if (!isNaN(input)) {
+		let index = parseInt(input) - 1;
+		input = choices[index].toLowerCase();
+	}
+	return input;
 }
 
 //#endregion
