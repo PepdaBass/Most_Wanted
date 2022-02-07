@@ -31,7 +31,6 @@ function app(people) {
 
 	// Call the mainMenu function ONLY after you find the SINGLE person you are looking for
 	mainMenu(searchResult, people);
-	app(people); // FIXME: sort out
 }
 
 // Menu function to call once you find who you are looking for
@@ -43,30 +42,53 @@ function mainMenu(person, people) {
 		alert('Could not find that individual.');
 		return app(people); // restart
 	}
+  const options = ["family", "descendants", "restart", "quit"]
+	// let displayOption = promptFor(
+	// 	'Found ' +
+	// 		person.firstName +
+	// 		' ' +
+	// 		person.lastName +
+	// 		". Do you want to know their 'info', 'family', or 'descendants'? Type the option you want or 'restart' or 'quit'",
+	// 	autoValid,
+	// );
+  const {firstName, lastName, gender, dob, height, weight, eyeColor, occupation} = person
 
-	let displayOption = promptFor(
-		'Found ' +
-			person.firstName +
-			' ' +
-			person.lastName +
-			" . Do you want to know their 'info', 'family', or 'descendants'? Type the option you want or 'restart' or 'quit'",
-		autoValid,
-	);
+  let displayOption = promptFor(
+    `${firstName} ${lastName}
+Gender: ${gender}
+DOB: ${dob}
+Height: ${height}
+Weight: ${weight}
+Eye Color: ${eyeColor}
+Occupation: ${occupation}\n
+Select an option:
+${optionsStrBuilder(options)}`, function(response){
+  return optionsValidator(response, options, ["f", "d", "r", "q"]);
+})
+
+if (!isNaN(displayOption)) {
+  const index = parseInt(displayOption) - 1;
+  displayOption = options[index].toLowerCase(); // TODO: cleanup, make into function?
+}
 
 	switch (displayOption) {
 		case 'info':
 			person = displayPerson(person);
 			return mainMenu(person, people);
 		case 'family':
+      case 'f':
 			person = displayFamily(people, person);
       return mainMenu(person, people);
 		case 'descendants':
+      case 'd':
 			person = displayDescendants(people, person);
       return mainMenu(person, people);
 		case 'restart':
+      case 'r':
 			app(people); // restart
 			break;
 		case 'quit':
+      case 'q':
 			return; // stop execution
 		default:
 			return mainMenu(person, people); // ask again
