@@ -43,14 +43,6 @@ function mainMenu(person, people) {
 		return app(people); // restart
 	}
   const options = ["Info", "Family", "Descendants", "Restart", "Quit"]
-	// let displayOption = promptFor(
-	// 	'Found ' +
-	// 		person.firstName +
-	// 		' ' +
-	// 		person.lastName +
-	// 		". Do you want to know their 'info', 'family', or 'descendants'? Type the option you want or 'restart' or 'quit'",
-	// 	autoValid,
-	// );
 
   let displayOption = promptFor(
     `Found ${person.firstName} ${person.lastName}.
@@ -86,8 +78,6 @@ if (!isNaN(displayOption)) {
 			return; // stop execution
 		default:
 			return mainMenu(person, people); // ask again
-		// TODO: make me recursive when completing a case
-		// TODO: display person's info in PromptFor
 	}
 }
 
@@ -167,7 +157,6 @@ function displayDescendants(people, parent) {
 	return selectPersonFromList(descendants);
 }
 
-//TODO: big ole refactor
 function displayFamily(people, selectedPerson) {
   let relationships = []
 	let familyMembers = people.filter(function (person) {
@@ -205,20 +194,20 @@ function isSiblings(selectedPerson, person) {
 //#region UI functions.
 
 //** prompts user to select from a list of people by name */
-function selectPersonFromList(people, relationships) {
+function selectPersonFromList(people, appendixList) {
 	if (people.length === 0) {
 		alert('Search results yielded no matches.');
 		return app();
 	}
 
-	if (people.length === 1 && !relationships) {
+	if (people.length === 1 && !appendixList) {
 		return people[0];
 	}
 
 	const names = namesList(people);
 
 	let response = promptFor(
-		`Choose a person to display their info\n${optionsStrBuilder(names, relationships)}`,
+		`Choose a person to display their info\n${optionsStrBuilder(names, appendixList)}`,
 		response => optionsValidator(response, names),
 	);
 
@@ -228,7 +217,7 @@ function selectPersonFromList(people, relationships) {
 }
 
 function namesList(people) {
-	return people.map(person => `${person.firstName} ${person.lastName}`); // TODO: add custom list vars into line
+	return people.map(person => `${person.firstName} ${person.lastName}`);
 }
 
 function displayPerson(person) {
