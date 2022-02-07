@@ -42,7 +42,7 @@ function mainMenu(person, people) {
 		alert('Could not find that individual.');
 		return app(people); // restart
 	}
-  const options = ["family", "descendants", "restart", "quit"]
+  const options = ["Info", "Family", "Descendants", "Restart", "Quit"]
 	// let displayOption = promptFor(
 	// 	'Found ' +
 	// 		person.firstName +
@@ -51,19 +51,12 @@ function mainMenu(person, people) {
 	// 		". Do you want to know their 'info', 'family', or 'descendants'? Type the option you want or 'restart' or 'quit'",
 	// 	autoValid,
 	// );
-  const {firstName, lastName, gender, dob, height, weight, eyeColor, occupation} = person
 
   let displayOption = promptFor(
-    `${firstName} ${lastName}
-Gender: ${gender}
-DOB: ${dob}
-Height: ${height}
-Weight: ${weight}
-Eye Color: ${eyeColor}
-Occupation: ${occupation}\n
+    `Found ${person.firstName} ${person.lastName}.
 Select an option:
 ${optionsStrBuilder(options)}`, function(response){
-  return optionsValidator(response, options, ["f", "d", "r", "q"]);
+  return optionsValidator(response, options, ["i", "f", "d", "r", "q"]);
 })
 
 if (!isNaN(displayOption)) {
@@ -73,6 +66,7 @@ if (!isNaN(displayOption)) {
 
 	switch (displayOption) {
 		case 'info':
+      case 'i':
 			person = displayPerson(person);
 			return mainMenu(person, people);
 		case 'family':
@@ -238,13 +232,13 @@ function namesList(people) {
 }
 
 function displayPerson(person) {
-	let personInfo = `First Name: ${person.firstName}\n
-Last Name: ${person.lastName}\n
-Gender: ${person.gender}\n
-DOB: ${person.dob}\n
-Height: ${person.height}\n
-Weight: ${person.weight}\n
-Eye Color: ${person.eyeColor}\n
+	let personInfo = `First Name: ${person.firstName}
+Last Name: ${person.lastName}
+Gender: ${person.gender}
+DOB: ${person.dob}
+Height: ${person.height}
+Weight: ${person.weight}
+Eye Color: ${person.eyeColor}
 Occupation: ${person.occupation}`;
 
 	alert(personInfo);
