@@ -31,7 +31,7 @@ function app(people) {
 
 	// Call the mainMenu function ONLY after you find the SINGLE person you are looking for
 	mainMenu(searchResult, people);
-	app(people); // restart app
+	app(people); // FIXME: sort out
 }
 
 // Menu function to call once you find who you are looking for
@@ -73,6 +73,7 @@ function mainMenu(person, people) {
 			return mainMenu(person, people); // ask again
 
 		// TODO: make me recursive when completing a case
+		// TODO: display person's info in PromptFor
 	}
 }
 
@@ -115,9 +116,7 @@ function searchByTrait(people, cnt = 0) {
 
 	if (cnt < 5) {
 		let selectedOption = promptFor(
-			`Select an option, 'v' to view results, 'q' to quit.\n${optionsStrBuilder(
-				traits,
-			)}`,
+			`Select an option, 'v' to view results, 'q' to quit.\n${optionsStrBuilder(traits)}`,
 			function (response) {
 				return optionsValidator(response, traits, ['q', 'v']);
 			},
@@ -134,15 +133,10 @@ function searchByTrait(people, cnt = 0) {
 			case 'q':
 				return;
 			default:
-				let criterion = promptFor(
-					`What is the person's ${selectedOption}?`,
-					autoValid,
-				);
+				let criterion = promptFor(`What is the person's ${selectedOption}?`, autoValid);
 
 				let foundPeople = people.filter(function (person) {
-					return (
-						person[convertToKey(selectedOption)].toLowerCase() == criterion
-					);
+					return person[convertToKey(selectedOption)].toLowerCase() == criterion;
 				});
 
 				return searchByTrait(foundPeople, cnt + 1);
@@ -213,9 +207,7 @@ function selectPersonFromList(people) {
 		response => optionsValidator(response, names),
 	);
 
-	const index = isNaN(response)
-		? names.indexOf(capitalize(response))
-		: response - 1;
+	const index = isNaN(response) ? names.indexOf(capitalize(response)) : response - 1;
 
 	return people[index];
 }
@@ -300,9 +292,7 @@ function convertToKey(input) {
 
 function capitalize(string) {
 	const words = string.split(' ');
-	return words
-		.map(word => word.charAt(0).toUpperCase() + word.slice(1))
-		.join(' ');
+	return words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 }
 
 //#endregion
