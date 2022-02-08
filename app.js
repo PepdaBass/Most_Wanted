@@ -307,7 +307,7 @@ function optionsValidator(userInput, options = [], customOptions = []) {
 
 function optionsStrBuilder(list, appendixList) {
 	const numberedList = list.map(function (option, i) {
-		return `${i + 1}) ${option}${appendixList ? ` (${appendixList[i]})` : ''}`;
+		return `${i + 1}) ${option}${appendixList && appendixList[i] ? ` (${appendixList[i]})` : ''}`;
 	});
 	return numberedList.join('\n');
 }
